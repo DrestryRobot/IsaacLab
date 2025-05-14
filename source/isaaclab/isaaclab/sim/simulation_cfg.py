@@ -268,8 +268,8 @@ class SimulationCfg:
     - ``"cuda"``: Use GPU, where the device ID is inferred from :class:`~isaaclab.app.AppLauncher`'s config.
     - ``"cuda:N"``: Use GPU, where N is the device ID. For example, "cuda:0".
     """
-
-    dt: float = 1.0 / 60.0
+    dt: float = 60.0 / 60.0
+#    dt: float = 1.0 / 60.0
     """The physics simulation time-step (in seconds). Default is 0.0167 seconds."""
 
     render_interval: int = 1
