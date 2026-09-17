@@ -1,0 +1,67 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary aubo_peg_overlay = {
+            string base_usd = "/home/admin/IsaacLab/assets/aubo_i10.usd"
+            string peg_usd = "/home/admin/IsaacLab/assets/peg_8mm.usd"
+            string peg_source_prim = "/Root/forge_round_peg_8mm/mesh"
+            string peg_attached_prim = "/aubo_i10/ft_sensor_link/peg_8mm"
+            string ft_sensor_link = "/aubo_i10/ft_sensor_link"
+            double shaft_length_m = 0.05
+        }
+    }
+    defaultPrim = "aubo_i10"
+    subLayers = [
+        @/home/admin/IsaacLab/assets/aubo_i10.usd@
+    ]
+)
+
+over "aubo_i10"
+{
+    over "wrist3_Link" (
+        prepend apiSchemas = ["PhysxContactReportAPI"]
+    )
+    {
+        float physxContactReport:threshold = 0
+
+        # Disable the legacy attached mesh. The active peg is on the dedicated
+        # fixed-joint FT link below.
+        over "peg_8mm"
+        {
+            bool physics:collisionEnabled = 0
+        }
+    }
+
+    # Keep the FT link as a sibling of the robot links. A rigid body nested
+    # below wrist3_Link is invalid for PhysX; the fixed joint supplies the
+    # attachment while ArticulationView exposes this link as a body.
+    def Xform "ft_sensor_link" (
+        resetXformStack = true
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "PhysxContactReportAPI"]
+    )
+    {
+        float physxContactReport:threshold = 0
+        float physics:mass = 0.02
+        point3f physics:centerOfMass = (0, 0, 0)
+        # 20 g, 8 mm diameter, 50 mm long cylindrical peg.
+        float3 physics:diagonalInertia = (4.25e-6, 4.25e-6, 1.60e-7)
+
+        def Mesh "peg_8mm" (
+            references = @/home/admin/IsaacLab/assets/peg_8mm.usd@</Root/forge_round_peg_8mm/mesh>
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            bool physics:collisionEnabled = 1
+        }
+    }
+
+    def PhysicsFixedJoint "ft_sensor_joint"
+    {
+        rel physics:body0 = </aubo_i10/wrist3_Link>
+        rel physics:body1 = </aubo_i10/ft_sensor_link>
+        point3f physics:localPos0 = (0, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot0 = (1, 0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+    }
+}

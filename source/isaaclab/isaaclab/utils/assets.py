@@ -23,8 +23,9 @@ import omni.client
 
 _NUCLEUS_ASSET_SETTING = carb.settings.get_settings().get("/persistent/isaac/asset_root/cloud")
 NUCLEUS_ASSET_ROOT_DIR = (
-    _NUCLEUS_ASSET_SETTING
-    or os.environ.get("ISAACLAB_ASSET_ROOT", os.path.expanduser("~/isaacsim_assets/Assets/Isaac/4.5"))
+    os.environ.get("ISAACLAB_ASSET_ROOT")
+    or _NUCLEUS_ASSET_SETTING
+    or os.path.expanduser("~/isaacsim_assets/Assets/Isaac/4.5")
 )
 """Path to the root directory on the Nucleus Server."""
 
